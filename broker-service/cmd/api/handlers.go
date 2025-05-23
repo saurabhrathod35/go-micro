@@ -40,6 +40,7 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, err)
 		return
 	}
+	log.Println("reqPayload ", reqPayload.Action)
 	switch reqPayload.Action {
 	case "auth":
 		app.authenticate(w, reqPayload.Auth)
@@ -55,24 +56,21 @@ func (app *Config) logItem(w http.ResponseWriter, l LogPayload) {
 	logServiceURL := "http://logger-service/log"
 	req, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
 	if err != nil {
-
 		app.errorJSON(w, err)
+		return
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	response, err := client.Do(req)
-	fmt.Println("Error from log service:", err)
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
 	defer response.Body.Close()
-	fmt.Println("Response from log service:", response)
 	if response.StatusCode != http.StatusAccepted {
 		app.errorJSON(w, errors.New("error calling log service"))
 		return
-
 	}
 
 	var jsonResponse jsonResponse
@@ -84,23 +82,31 @@ func (app *Config) logItem(w http.ResponseWriter, l LogPayload) {
 }
 func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 	// create json and send to auth microservice
-	jsonData, _ := json.MarshalIndent(a, "", "\t")
-
+	log.Println("auth initiated ")
+	jsonData, err := json.MarshalIndent(a, "", "\t")
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
 	/// call service
 	req, err := http.NewRequest("POST", "http://authentication-service/authenticate", bytes.NewBuffer(jsonData))
 	if err != nil {
+		log.Println("err at post ", err)
 		app.errorJSON(w, err)
 		return
 	}
 	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
+		log.Println("err at Do ", err)
+
 		app.errorJSON(w, err)
 		return
 	}
 	defer response.Body.Close()
 
 	// make sure we get correct status code
+	fmt.Println("err at status code ", response.StatusCode)
 	if response.StatusCode == http.StatusUnauthorized {
 		app.errorJSON(w, errors.New("invalid creds"))
 		return
@@ -109,12 +115,13 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 		return
 	}
 	// create var who read response body
-	var jsonFormService jsonResponse
-
+	jsonFormService := jsonResponse{}
 	// decode the json from the auth service
-	err = json.NewDecoder(req.Body).Decode(&jsonFormService)
+
+	err = json.NewDecoder(response.Body).Decode(&jsonFormService)
+	fmt.Println("response body ", err)
 	if err != nil {
-		log.Println("76")
+		log.Println("err at decode ", err)
 		app.errorJSON(w, err)
 		return
 	}
