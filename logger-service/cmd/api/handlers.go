@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"logger-service/data"
 	"net/http"
 )
@@ -18,15 +19,19 @@ func (app *Config) WriteLog(w http.ResponseWriter, r *http.Request) {
 		Name: payload.Name,
 		Data: payload.Data,
 	}
+
 	err := app.Models.LogEntry.Insert(event)
+
 	if err != nil {
+		fmt.Println("Error inserting log entry:", err)
 		app.errorJSON(w, err)
 		return
 	}
+
 	response := jsonResponse{
 		Error:   false,
 		Message: "Log entry created successfully",
 	}
-	app.writeJSON(w, http.StatusCreated, response)
+	app.writeJSON(w, http.StatusAccepted, response)
 
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -54,17 +55,20 @@ func (app *Config) logItem(w http.ResponseWriter, l LogPayload) {
 	logServiceURL := "http://logger-service/log"
 	req, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
 	if err != nil {
+
 		app.errorJSON(w, err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	response, err := client.Do(req)
+	fmt.Println("Error from log service:", err)
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
 	defer response.Body.Close()
+	fmt.Println("Response from log service:", response)
 	if response.StatusCode != http.StatusAccepted {
 		app.errorJSON(w, errors.New("error calling log service"))
 		return
