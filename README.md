@@ -1,49 +1,102 @@
 # Go Microservices Starter
 
-A modular and scalable microservices starter kit built with Go (Golang), designed to accelerate the development of distributed systems using clean architecture principles.
+A modular and scalable microservices starter kit built with Go (Golang), designed to accelerate the development of distributed systems. Each service is self-contained, promoting independent development, testing, and deployment. The repository includes example services (authentication, broker, logger, mail) and a simple front-end, each in its own directory.
 
-## 🚀 Overview
+## 📁 Project Structure
 
-This repository serves as a foundational template for building microservices in Go. It incorporates essential components such as service discovery, logging, and containerization, facilitating rapid development and deployment of microservices.
-
-## 🧱 Project Structure
-
-The project is organized into the following directories:
-
-- `authentication-service/` – Handles user authentication and authorization.
-- `broker-service/` – Acts as an intermediary for inter-service communication.
-- `logger-service/` – Manages centralized logging across services.
-- `front-end/` – Provides a user interface for interacting with the microservices.
-- `project/` – Contains shared configurations and utilities.
-
-Each service is self-contained, promoting independent development, testing, and deployment.
-
-## 🛠️ Features
-
-- **Microservices Architecture**: Encourages separation of concerns and scalability.
-- **Clean Codebase**: Follows Go best practices for maintainability.
-- **Dockerized Services**: Simplifies deployment with Docker containers.
-- **Centralized Logging**: Aggregates logs for easier monitoring and debugging.
-- **Service Discovery**: Enables dynamic discovery of services within the ecosystem.
-
-## 🧰 Technologies Used
-
-- **Go (Golang)**: Primary language for service implementation.
-- **Docker**: Containerization of services for consistent environments.
-- **Makefile**: Automates build and deployment tasks.
-- **Go Modules**: Manages dependencies for each service.
+```
+go-micro/
+├── authentication-service/   # Auth microservice (stub)
+├── broker-service/           # Broker API microservice (implemented)
+│   └── cmd/api/              # Entrypoint: main.go
+├── front-end/                # Basic HTML front-end
+│   └── cmd/web/              # Entrypoint: main.go
+├── logger-service/           # Logger microservice (stub)
+├── mail-service/             # Mail microservice (stub)
+├── project/                  # Shared config/tools (Makefile, etc.)
+```
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Go 1.16 or higher
-- Docker
-- Make
+- Git
 
-### Installation
+### Clone the Repository
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/saurabhrathod35/go-micro.git
-   cd go-micro
+```bash
+git clone https://github.com/saurabhrathod35/go-micro.git
+cd go-micro
+```
+
+### Run Services Locally
+
+Each microservice is independently runnable. Here's how to start the broker and front-end:
+
+**Run Broker Service:**
+
+```bash
+cd broker-service/cmd/api
+go run main.go
+```
+
+**Run Front-End:**
+
+Open a new terminal:
+
+```bash
+cd front-end/cmd/web
+go run main.go
+```
+
+## 🌐 Usage
+
+### Broker Service
+
+- **POST /** – Returns a JSON response:
+  ```bash
+  curl -X POST http://localhost:8081
+  ```
+  Response:
+  ```json
+  {"error":false,"message":"Hit the broker"}
+  ```
+
+- **GET /ping** – Health check endpoint:
+  ```bash
+  curl http://localhost:8081/ping
+  ```
+
+### Front-End
+
+Visit [http://localhost:8082](http://localhost:8082) in a browser.
+
+- Click the "Hit Broker" button to send a POST request to the broker.
+- The response is displayed in the browser using JavaScript.
+
+## 🛠 Services Overview
+
+| Service              | Status      | Description                          |
+|----------------------|-------------|--------------------------------------|
+| Broker Service       | ✅ Implemented | Example API gateway                  |
+| Authentication       | 🔧 Stub       | Placeholder for auth service         |
+| Logger               | 🔧 Stub       | Central logging service              |
+| Mail                 | 🔧 Stub       | Email/notification service           |
+| Front-End            | ✅ Implemented | Simple UI to test broker             |
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repo
+2. Create a new branch: `git checkout -b feature-name`
+3. Make your changes
+4. Run and test the services locally
+5. Submit a pull request with a clear description
+
+Please format code with `gofmt` and follow Go best practices.
+
+---
+
+Happy coding! 🚀
