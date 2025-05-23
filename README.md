@@ -2,7 +2,7 @@
 
 A modular and scalable microservices starter kit built with Go (Golang), designed to accelerate the development of distributed systems. Each service is self-contained, promoting independent development, testing, and deployment. The repository includes example services (authentication, broker, logger, mail) and a simple front-end, each in its own directory.
 
-## 📁 Project Structure
+## 📁 Project Structure.....
 
 ```
 go-micro/
