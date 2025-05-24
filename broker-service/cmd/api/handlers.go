@@ -13,6 +13,14 @@ type RequestPayload struct {
 	Action string      `json:"action"`
 	Auth   AuthPayload `json:"auth,omitempty"`
 	Log    LogPayload  `json:"log,omitempty"`
+	Mail   MailPayload `json:"mail,omitempty"`
+}
+type MailPayload struct {
+	From    string `json:"from"`
+	To      string `json:"to"`
+	Subject string `json:"subject"`
+	Body    string `json:"body"`
+	Message string `json:"message,omitempty"`
 }
 type AuthPayload struct {
 	Email    string `json:"email"`
@@ -46,9 +54,49 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 		app.authenticate(w, reqPayload.Auth)
 	case "log":
 		app.logItem(w, reqPayload.Log)
+	case "mail":
+		app.sendMail(w, reqPayload.Mail)
 	default:
 		app.errorJSON(w, errors.New("unknown action"))
 	}
+}
+
+func (app *Config) sendMail(w http.ResponseWriter, m MailPayload) {
+	// create json and send to mail microservice
+	log.Println("mail initiated ", m)
+	jsonData, err := json.MarshalIndent(m, "", "\t")
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	// call service
+	req, err := http.NewRequest("POST", "http://mailler-service/send", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Println("err at post ", err)
+		app.errorJSON(w, err)
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Println("err at Do ", err)
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+	log.Println("response body ", response.StatusCode)
+	if response.StatusCode != http.StatusAccepted {
+		app.errorJSON(w, errors.New("error calling mail service"))
+		return
+	}
+
+	var jsonResponse jsonResponse
+	jsonResponse.Error = false
+	jsonResponse.Message = "mail sent successfully"
+
+	app.writeJSON(w, http.StatusAccepted, jsonResponse)
 }
 
 func (app *Config) logItem(w http.ResponseWriter, l LogPayload) {
@@ -119,7 +167,6 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 	// decode the json from the auth service
 
 	err = json.NewDecoder(response.Body).Decode(&jsonFormService)
-	fmt.Println("response body ", err)
 	if err != nil {
 		log.Println("err at decode ", err)
 		app.errorJSON(w, err)

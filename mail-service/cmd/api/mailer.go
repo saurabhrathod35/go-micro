@@ -45,7 +45,7 @@ func (m *Mail) SendSMTPMessage(msg Message) error {
 		"message": msg.Data,
 	}
 	msg.Data = data
-
+	log.Println("Sending email to", msg.To, "from", msg.From, "with subject", msg.Subject, msg.Data)
 	formattedMessage, err := m.buildHtmlMessage(msg)
 	if err != nil {
 		log.Println("Error building HTML message", err)
@@ -94,13 +94,13 @@ func (m *Mail) buildHtmlMessage(msg Message) (string, error) {
 	// Implement the logic to build the HTML message
 	// This is a placeholder for the actual implementation
 	templateToRender := "./templates/mail.html.gohtml"
-	t, err := template.New("email-html").ParseFiles(templateToRender)
+	t, err := template.New("body").ParseFiles(templateToRender)
 	if err != nil {
 		log.Println("Error parsing template:", err)
 		return "", err
 	}
 	var tpl bytes.Buffer
-	if err := t.ExecuteTemplate(&tpl, "email-html", msg.DataMap); err != nil {
+	if err := t.ExecuteTemplate(&tpl, "body", msg.DataMap); err != nil {
 		log.Println("Error executing template:", err)
 		return "", err
 	}
@@ -138,13 +138,13 @@ func (m *Mail) buildPlainTextMessage(msg Message) (string, error) {
 	// Implement the logic to build the HTML message
 	// This is a placeholder for the actual implementation
 	templateToRender := "./templates/mail.plain.html.gohtml"
-	t, err := template.New("email-plain").ParseFiles(templateToRender)
+	t, err := template.New("body").ParseFiles(templateToRender)
 	if err != nil {
 		log.Println("Error parsing template:", err)
 		return "", err
 	}
 	var tpl bytes.Buffer
-	if err := t.ExecuteTemplate(&tpl, "email-plain", msg.DataMap); err != nil {
+	if err := t.ExecuteTemplate(&tpl, "body", msg.DataMap); err != nil {
 		log.Println("Error executing template:", err)
 		return "", err
 	}
