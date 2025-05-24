@@ -35,7 +35,23 @@ services:
     environment:
       DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
 
-
+  mailler-service:
+    build:
+      context: ./../mail-service
+      dockerfile: ./../mail-service/mailler-service.dockerfile 
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MAIL_DOMAIN: localhost
+      MAIL_HOST: mailhog
+      MAIL_USERNAME: ''
+      MAIL_PASSWORD: ''
+      MAIL_PORT: 1025
+      MAIL_ENCRYPTION: none
+      MAIL_FROM_ADDRESS: 'saurabh.rathod@example.com'
+      MAIL_FROM_NAME: 'Saurabh Rathod'
 
   postgres:
       image: 'postgres:14.0'

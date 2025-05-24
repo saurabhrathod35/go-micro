@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"text/template"
@@ -162,4 +164,19 @@ func (m *Mail) getEncryption(encryption string) mail.Encryption {
 	default:
 		return mail.EncryptionSTARTTLS
 	}
+}
+
+func createMail() Mail {
+	port, _ := strconv.Atoi(os.Getenv("MAIL_PORT"))
+	m := Mail{
+		Port:        port,
+		Domain:      os.Getenv("MAIL_DOMAIN"),
+		Host:        os.Getenv("MAIL_HOST"),
+		Username:    os.Getenv("MAIL_USERNAME"),
+		Password:    os.Getenv("MAIL_PASSWORD"),
+		Encryption:  os.Getenv("MAIL_ENCRYPTION"),
+		FromAddress: os.Getenv("MAIL_FROM_ADDRESS"),
+		FromName:    os.Getenv("MAIL_FROM_NAME"),
+	}
+	return m
 }
