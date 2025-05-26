@@ -98,6 +98,7 @@ func (consumer *Consumer) Listen(topics []string) error {
 }
 
 func handlePayload(payload Payload) {
+	log.Printf("\nHandling payload: %s", payload.Name)
 	switch payload.Name {
 	case "log", "event":
 		log.Printf("\nReceived message: %s", payload.Data)
