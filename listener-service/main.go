@@ -1,7 +1,8 @@
 package main
 
 import (
-	"listener-service/event"
+	"fmt"
+	"listener/event"
 	"log"
 	"math"
 	"os"
@@ -11,56 +12,57 @@ import (
 )
 
 func main() {
-	// try to connect Rabbitmq
-	rabbitmqConn, err := connect()
+	// try to connect to rabbitmq
+	rabbitConn, err := connect()
 	if err != nil {
-		log.Fatalf("Failed to connect to RabbitMQ: %s", err)
+		log.Println(err)
 		os.Exit(1)
 	}
-	defer rabbitmqConn.Close()
+	defer rabbitConn.Close()
 
-	//start listning for messages
-	log.Println("Starting to listen for messages...")
+	// start listening for messages
+	log.Println("Listening for and consuming RabbitMQ messages...")
 
 	// create consumer
-	consumer, err := event.NewConsumer(rabbitmqConn, "")
+	consumer, err := event.NewConsumer(rabbitConn)
 	if err != nil {
 		panic(err)
 	}
-	// watch the queue and consume event
-	err = consumer.Listen([]string{"logs.INFO", "logs.ERROR", "logs.WARNING"})
+
+	// watch the queue and consume events
+	err = consumer.Listen([]string{"log.INFO", "log.WARNING", "log.ERROR"})
 	if err != nil {
-		log.Printf("Failed to listen for messages: %s", err)
-		os.Exit(1)
+		log.Println(err)
 	}
 }
 
 func connect() (*amqp.Connection, error) {
-	var count int64
-	var backoff = 1 * time.Second
-
+	var counts int64
+	var backOff = 1 * time.Second
 	var connection *amqp.Connection
 
-	// dont continue until connection is established
+	// don't continue until rabbit is ready
 	for {
-		c, err := amqp.Dial(os.Getenv("RABBITMQ_CONNECTION_STRING"))
-		// c, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
+		c, err := amqp.Dial("amqp://guest:guest@rabbitmq")
 		if err != nil {
-			log.Printf("Failed to connect to RabbitMQ: %s", err)
-			count++
+			fmt.Println("RabbitMQ not yet ready...")
+			counts++
 		} else {
-			log.Println("Connected to RabbitMQ")
+			log.Println("Connected to RabbitMQ!")
 			connection = c
 			break
 		}
-		if count > 5 {
-			log.Println("Failed to connect to RabbitMQ after 5 attempts, exiting...", err)
+
+		if counts > 5 {
+			fmt.Println(err)
 			return nil, err
 		}
-		backoff = time.Duration(math.Pow(float64(count), 2)) * time.Second
-		log.Println("Retrying connection in", backoff)
-		time.Sleep(backoff)
+
+		backOff = time.Duration(math.Pow(float64(counts), 2)) * time.Second
+		log.Println("backing off...")
+		time.Sleep(backOff)
 		continue
 	}
+
 	return connection, nil
 }

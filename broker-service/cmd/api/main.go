@@ -18,14 +18,16 @@ type Config struct {
 }
 
 func main() {
-	rabbitmqConn, err := connect()
+	// try to connect to rabbitmq
+	rabbitConn, err := connect()
 	if err != nil {
-		log.Fatalf("Failed to connect to RabbitMQ: %s", err)
+		log.Println(err)
 		os.Exit(1)
 	}
-	defer rabbitmqConn.Close()
+	defer rabbitConn.Close()
+
 	app := Config{
-		Rabbit: rabbitmqConn,
+		Rabbit: rabbitConn,
 	}
 
 	log.Printf("Starting broker service on port %s\n", webPort)
@@ -44,31 +46,32 @@ func main() {
 }
 
 func connect() (*amqp.Connection, error) {
-	var count int64
-	var backoff = 1 * time.Second
-
+	var counts int64
+	var backOff = 1 * time.Second
 	var connection *amqp.Connection
 
-	// dont continue until connection is established
+	// don't continue until rabbit is ready
 	for {
-		c, err := amqp.Dial(os.Getenv("RABBITMQ_CONNECTION_STRING"))
-		// c, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
+		c, err := amqp.Dial("amqp://guest:guest@rabbitmq")
 		if err != nil {
-			log.Printf("Failed to connect to RabbitMQ: %s", err)
-			count++
+			fmt.Println("RabbitMQ not yet ready...")
+			counts++
 		} else {
-			log.Println("Connected to RabbitMQ")
+			log.Println("Connected to RabbitMQ!")
 			connection = c
 			break
 		}
-		if count > 5 {
-			log.Println("Failed to connect to RabbitMQ after 5 attempts, exiting...", err)
+
+		if counts > 5 {
+			fmt.Println(err)
 			return nil, err
 		}
-		backoff = time.Duration(math.Pow(float64(count), 2)) * time.Second
-		log.Println("Retrying connection in", backoff)
-		time.Sleep(backoff)
+
+		backOff = time.Duration(math.Pow(float64(counts), 2)) * time.Second
+		log.Println("backing off...")
+		time.Sleep(backOff)
 		continue
 	}
+
 	return connection, nil
 }

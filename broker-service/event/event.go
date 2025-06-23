@@ -12,17 +12,17 @@ func declareExchange(ch *amqp.Channel) error {
 		false,        // auto-deleted?
 		false,        // internal?
 		false,        // no-wait?
-		nil,          // arguments
+		nil,          // arguements?
 	)
 }
 
 func declareRandomQueue(ch *amqp.Channel) (amqp.Queue, error) {
 	return ch.QueueDeclare(
-		"",    // name
-		false, // durable
-		false, // auto-deleted
-		true,  // exclusive
-		false, // no-wait
-		nil,   // arguments
+		"",    // name?
+		false, // durable?
+		false, // delete when unused?
+		true,  // exclusive?
+		false, // no-wait?
+		nil,   // arguments?
 	)
 }
