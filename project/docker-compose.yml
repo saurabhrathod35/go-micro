@@ -103,7 +103,7 @@ services:
       mode: replicated
       replicas: 1
     environment:
-      RABBITMQ_CONNECTION_STRING: 'amqp://guest:guest@rabbitmq:5672/'
+      RABBITMQ_CONNECTION_STRING: 'amqp://guest:guest@rabbitmq/'
     volumes:
       - ./db-data/rabbitmq/:/var/lib/rabbitmq/
 
@@ -115,6 +115,6 @@ services:
       mode: replicated
       replicas: 1
     environment:
-      RABBITMQ_CONNECTION_STRING: 'amqp://guest:guest@rabbitmq:5672/'
+      RABBITMQ_CONNECTION_STRING: 'amqp://guest:guest@rabbitmq/'
     volumes:
       - ./db-data/rabbitmq/:/var/lib/rabbitmq/
