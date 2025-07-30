@@ -77,9 +77,6 @@ func (consumer *Consumer) Listen(topics []string) error {
 	go func() {
 		for d := range messages {
 			var payload Payload
-			fmt.Println("------------------------------------------------------")
-			fmt.Println("Received a message:", string(d.Body))
-			fmt.Println("------------------------------------------------------")
 			_ = json.Unmarshal(d.Body, &payload)
 
 			go handlePayload(payload)
