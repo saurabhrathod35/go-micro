@@ -18,6 +18,6 @@ message LogResponse{
 }
 
 service LogService {
-    rpc WriteLog(LogRequest) return (LogResponse);
+    rpc WriteLog(LogRequest) returns (LogResponse);
 }
 
