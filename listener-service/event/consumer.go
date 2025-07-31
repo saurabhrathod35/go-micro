@@ -55,7 +55,7 @@ func (consumer *Consumer) Listen(topics []string) error {
 	}
 
 	for _, s := range topics {
-		ch.QueueBind(
+		err := ch.QueueBind(
 			q.Name,
 			s,
 			"logs_topic",
